@@ -1,0 +1,166 @@
+apply plugin: 'checkstyle'
+apply plugin: 'findbugs'
+apply plugin: 'pmd'
+
+
+check.dependsOn 'checkstyle', 'findbugs', 'pmd'
+
+def configDir = "${project.rootDir}/config/quality"
+
+checkstyle {
+    toolVersion = '8.0'
+}
+
+task checkstyle(type: Checkstyle) {
+    configFile = file("$configDir/checkstyle/checkstyle.xml")
+    configProperties.checkstyleSuppressionsPath = file("$configDir/checkstyle/suppressions.xml").absolutePath
+    Iterator<String> iterator = project.getParent().getChildProjects().keySet().iterator()
+    while (iterator.hasNext()) {
+        source "${project.rootDir}/${iterator.next()}/src/main/java"
+    }
+
+    include '**/*.java'
+    exclude '**/gen/**'
+    exclude '**/db/**'
+    exclude '**/bean/**'
+    exclude '**/test/**'
+    exclude '**/androidTest/**'
+    exclude '**/R.java'
+    exclude '**/BuildConfig.java'
+    classpath = files()
+}
+
+findbugs {
+    toolVersion = '3.0.1'
+}
+afterEvaluate {
+    task('findbugs', type: FindBugs, dependsOn: assembleDebug) {
+        description 'Run Findbugs'
+        group 'verification'
+        Iterator<String> iterator = project.getParent().getChildProjects().keySet().iterator()
+        StringBuilder classesFiles = new StringBuilder()
+        def i = 0
+        while (iterator.hasNext()) {
+            i++
+            def module = iterator.next()
+            classesFiles.append("${project.rootDir}/${module}/build/intermediates/javac").append(",")
+        }
+        classes = files(classesFiles.toString().split(","))
+        source fileTree('src/main/java/')
+        classpath = project.configurations.compile
+        effort 'max'
+        excludeFilter = new File("$configDir/findbugs/findbugs-filter.xml")
+        reports {
+            xml.enabled = false
+            html.enabled = true
+        }
+    }
+    check.dependsOn('findbugs')
+}
+
+//task findbugs(type: FindBugs, dependsOn: "assembleDebug") {
+//    ignoreFailures = false
+//    effort = "max"
+//    reportLevel = "high"
+////    excludeFilter = new File("$configDir/findbugs/findbugs-filter.xml")
+//    classes = files("${project.rootDir}/app/build/intermediates/")
+//
+//    source = fileTree('src/main/java/')
+//    include '**/*.java'
+//    exclude '**/gen/**'
+//
+//    reports {
+//        xml.enabled = false
+//        html.enabled = true
+//        xml {
+//            destination file("$reportsDir/findbugs/findbugs.xml")
+//        }
+//        html {
+//            destination file("$reportsDir/findbugs/findbugs.html")
+//        }
+//    }
+//
+//    classpath = files()
+//}
+
+apply plugin: 'pmd'
+pmd {
+    toolVersion '6.17.0'
+}
+afterEvaluate {
+    task('pmd', type: Pmd) {
+        description 'Run pmd'
+        group 'verification'
+        ruleSets = []
+        ruleSetFiles = files("$configDir/pmd/pmd-ruleset.xml")
+        Iterator<String> iterator = project.getParent().getChildProjects().keySet().iterator()
+        StringBuilder classesFiles = new StringBuilder()
+        def i = 0
+        while (iterator.hasNext()) {
+            i++
+            def module = iterator.next()
+            classesFiles.append("${project.rootDir}/${module}/src/main/java/").append(",")
+        }
+        source = files(classesFiles.toString().split(","))
+
+        reports {
+            xml.enabled = false
+            html.enabled = true
+        }
+        check.dependsOn('pmd')
+    }
+}
+
+//task pmd(type: Pmd) {
+//    ignoreFailures = false
+//    ruleSetFiles = files("$configDir/pmd/pmd-ruleset.xml")
+//    ruleSets = []
+//
+//    source 'src'
+//    include '**/*.java'
+//    exclude '**/gen/**'
+//
+//    reports {
+//        xml.enabled = false
+//        html.enabled = true
+//        xml {
+//            destination file("$reportsDir/pmd/pmd.xml")
+//        }
+//        html {
+//            destination file("$reportsDir/pmd/pmd.html")
+//        }
+//    }
+//}
+
+//android {
+//    lintOptions {
+//        abortOnError true
+//        xmlReport false
+//        htmlReport true
+//        lintConfig file("$configDir/lint/lint.xml")
+//        htmlOutput file("$reportsDir/lint/lint-result.html")
+//        xmlOutput file("$reportsDir/lint/lint-result.xml")
+//    }
+//}
+//
+//task detectInfer(type: Exec) {
+//    commandLine 'command'
+//    args = ['-v', 'infer']
+//
+//    // Hide output if infer is present
+//    standardOutput new ByteArrayOutputStream()
+//
+//    // Inform user if infer not present
+//    ignoreExitValue true
+//    doLast {
+//        if(execResult.getExitValue() != 0) {
+//            throw new GradleException("Infer seems not installed. Please refer to http://fbinfer.com/docs/getting-started.html")
+//        }
+//    }
+//}
+//
+//task infer(type: Exec, dependsOn: [clean, detectInfer]) {
+//    workingDir "${project.rootDir}"
+//    commandLine 'infer'
+//    args = ['--', './gradlew', 'build']
+//}

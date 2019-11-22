@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<FindBugsFilter>
+    <Match>
+        <Class name="~.*\.R\$.*" />
+    </Match>
+    <Match>
+        <Class name="~.*\.Manifest\$.*" />
+    </Match>
+    <!-- All bugs in test classes, except for JUnit-specific bugs -->
+    <Match>
+        <Class name="~.*\.*Test" />
+        <Not>
+            <Bug code="IJU" />
+        </Not>
+    </Match>
+
+    <Match>
+        <Class name="android.arch.core.R" />
+    </Match>
+    <Match>
+        <Class name="com.ttp.module_common.utils.luban.Luban$Builder" />
+    </Match>
+    <Match>
+        <Class name="~.*\.*\$ViewModel" />
+    </Match>
+    <Match>
+        <Package name="~.*\.db.*" />
+    </Match>
+    <Match>
+        <Package name="~.*\.bean.*" />
+    </Match>
+    <Match>
+        <Package name="~.*\.databinding.*" />
+    </Match>
+    <Match>
+        <Package name="~.*\.apt.*" />
+    </Match>
+
+    <Match>
+        <Bug code="SF" />
+    </Match>
+    <Match>
+        <Bug code="CN" />
+    </Match>
+    <!--RV_RETURN_VALUE_IGNORED_BAD_PRACTICE：方法忽略异常的返回值
+此方法返回未检查的值。应该检查返回值，因为它可能表示异常或意外的函数执行。例如，File.delete()如果无法成功删除文件（而不是引发Exception），则该方法返回false。如果不检查结果，您将不会注意到方法调用是否通过返回非典型返回值来表示意外行为。-->
+    <Match>
+        <Bug code="RV" />
+    </Match>
+    <!--VA_FORMAT_STRING_USES_NEWLINE：格式字符串应使用％n而不是\ n
+此格式字符串包括换行符（\ n）。在格式字符串中，通常最好使用％n，它会产生特定于平台的行分隔符。-->
+    <Match>
+        <Bug code="FS" />
+    </Match>
+    <Match>
+        <Bug code="SBSC" />
+    </Match>
+    <Match>
+        <Bug code="MS" />
+    </Match>
+    <Match>
+        <Bug code="OBL" />
+    </Match>
+    <Match>
+        <Bug code="UR" />
+    </Match>
+    <Match>
+        <Bug code="UwF" />
+    </Match>
+    <Match>
+        <Bug code="Dm" />
+    </Match>
+    <Match>
+        <Bug code="ST" />
+    </Match>
+    <Match>
+        <Bug code="RCN" />
+    </Match>
+    <Match>
+        <Bug code="FE" />
+    </Match>
+    <Match>
+        <Bug code="EI" />
+    </Match>
+    <Match>
+        <Bug code="EI2" />
+    </Match>
+    <Match>
+        <Bug code="IM" />
+    </Match>
+</FindBugsFilter>
